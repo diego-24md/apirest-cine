@@ -8,14 +8,30 @@ export const getPeliculas = async (req, res) => {
 
 export const getPeliculasById = async (req, res) => {
   const [rows] = await pool.query("SELECT * FROM peliculas WHERE id = ?", [req.params.id])
+
   if (rows.length <= 0) return res.status(404).json({
     message: 'No existe pelicula con este ID'
   })
+
   res.json(rows)
 }
 
 export const createPeliculas = async (req, res) => {
+  //1. Obtener datos del JSON (input)
+  const {titulo, duracionmin, clasificacion, alanzamiento} = req.body
 
+  //2. Ejecutar la consulta, pasa valores obtenidos
+  const [rows] = await pool.query("INSERT INTO peliculas (titulo, duracionmin, clasificacion, alanzamiento, id) VALUES (?,?,?,?)",
+  [titulo, duracionmin, clasificacion, alanzamiento])
+
+  //3. Enviar un objeto con el resultado del query
+  res.send({
+    id: rows.insertId,
+    titulo,
+    duracionmin,
+    clasificacion,
+    alanzamiento
+  })
 }
 
 export const updatePeliculas = async (req, res) => {
