@@ -2,21 +2,36 @@ import { pool } from "../db.js"
 
 //Logica (backend) de cada endpoint
 export const getPeliculas = async (req, res) => {
-  const [rows] = await pool.query("SELECT * FROM peliculas")
-  res.json(rows)
+  try{
+   const [rows] = await pool.query("SELECT * FROM peliculas")
+   res.json(rows) 
+  } catch (error){
+    return res.status(500).json({
+      message: 'No se concretó la consulta'
+    })
+  }
 }
 
 export const getPeliculasById = async (req, res) => {
+  try{
   const [rows] = await pool.query("SELECT * FROM peliculas WHERE id = ?", [req.params.id])
 
   if (rows.length <= 0) return res.status(404).json({
     message: 'No existe pelicula con este ID'
   })
 
-  res.json(rows)
+  res.json(rows)    
+  } catch (error){
+    return res.status(500)({
+      message: 'No se concretó la consulta'
+    })
+  }
+
 }
 
 export const createPeliculas = async (req, res) => {
+
+  try {
   //1. Obtener datos del JSON (input)
   const {titulo, duracionmin, clasificacion, alanzamiento} = req.body
 
@@ -31,10 +46,17 @@ export const createPeliculas = async (req, res) => {
     duracionmin,
     clasificacion,
     alanzamiento
-  })
+  })    
+  } catch (error) {
+    return res.status(500).json({
+      message: 'No se pudo crear la película'
+    })
+  }
+
 }
 
 export const updatePeliculas = async (req, res) => {
+  try {
   const id = req.params.id
   const {titulo, duracionmin, clasificacion, alanzamiento} = req.body
 
@@ -55,10 +77,17 @@ export const updatePeliculas = async (req, res) => {
     })
   }
 
-  res.json({ message: 'Actualizacion correcta'})
+  res.json({ message: 'Actualizacion correcta'})    
+  } catch (error) {
+    return res.status(500).json({
+      message: 'No se concretó la actualización'
+    })
+  }
+
 }
 
 export const deletePeliculas = async (req, res) => {
+  try {
   const [result] = await pool.query("DELETE FROM peliculas WHERE id = ?", [req.params.id])
 
   if (result.affectedRows <= 0) {
@@ -68,5 +97,11 @@ export const deletePeliculas = async (req, res) => {
   }  
 
   //Y si borra correctamente?
-  res.sendStatus(204)
+  res.sendStatus(204)    
+  } catch (error) {
+    return res.status(500).json({
+      message: 'No se pudo eliminar la película'
+    })
+  }
+
 }
